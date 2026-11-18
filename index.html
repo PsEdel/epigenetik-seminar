@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Welche epigenetische Labormethode?</title>
+<style>
+:root {
+  --purple-50: #EEEDFE; --purple-100: #CECBF6; --purple-200: #AFA9EC;
+  --purple-400: #7F77DD; --purple-600: #534AB7; --purple-800: #3C3489;
+  --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-200: #5DCAA5;
+  --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
+  --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-200: #EF9F27;
+  --amber-600: #854F0B; --amber-800: #633806;
+  --coral-50: #FAECE7; --coral-100: #F5C4B3; --coral-200: #F0997B;
+  --coral-600: #993C1D; --coral-800: #712B13;
+  --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-200: #B4B2A9;
+  --gray-400: #888780; --gray-600: #5F5E5A;
+  --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-200: #85B7EB;
+  --blue-400: #378ADD; --blue-600: #185FA5; --blue-800: #0C447C;
+  --green-50: #EAF3DE; --green-100: #C0DD97; --green-400: #639922;
+  --green-600: #3B6D11; --green-800: #27500A;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-bg: #1a1a1a; --surface-card: #242424; --surface-card2: #2e2e2e;
+    --text-primary: #f0f0ee; --text-secondary: #a8a8a2; --text-muted: #6e6e68;
+    --border-col: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.18);
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --surface-bg: #f8f7f4; --surface-card: #ffffff; --surface-card2: #f1efe8;
+    --text-primary: #1a1a18; --text-secondary: #5f5e5a; --text-muted: #888780;
+    --border-col: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 2rem 1rem 3rem;
+}
+.wrapper { max-width: 700px; margin: 0 auto; }
+h1 {
+  font-size: 20px; font-weight: 500; margin-bottom: 0.4rem;
+  color: var(--text-primary);
+}
+.subtitle {
+  font-size: 14px; color: var(--text-secondary); margin-bottom: 2rem;
+}
+.progress-bar {
+  height: 4px; background: var(--border-col); border-radius: 2px;
+  margin-bottom: 2rem; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--purple-400); border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.breadcrumb {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem;
+  font-size: 12px; color: var(--text-muted);
+}
+.breadcrumb-step {
+  display: flex; align-items: center; gap: 6px;
+}
+.breadcrumb-step::after {
+  content: "→"; color: var(--text-muted);
+}
+.breadcrumb-step:last-child::after { display: none; }
+.breadcrumb-label {
+  background: var(--surface-card2); border-radius: 4px;
+  padding: 2px 8px; color: var(--text-secondary);
+}
+.card {
+  background: var(--surface-card);
+  border: 0.5px solid var(--border-col);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.question {
+  font-size: 17px; font-weight: 500; margin-bottom: 0.5rem;
+  color: var(--text-primary); line-height: 1.4;
+}
+.hint {
+  font-size: 13px; color: var(--text-secondary); margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--surface-card2);
+  border: 0.5px solid var(--border-col);
+  border-radius: 8px; padding: 14px 16px;
+  cursor: pointer; text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  color: var(--text-primary); font-size: 15px; font-family: inherit;
+  line-height: 1.4;
+}
+.opt-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-card);
+}
+.opt-btn:active { transform: scale(0.99); }
+.opt-icon {
+  width: 32px; height: 32px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0; margin-top: 1px;
+}
+.opt-label { font-weight: 500; display: block; margin-bottom: 2px; }
+.opt-desc { font-size: 13px; color: var(--text-secondary); display: block; }
+
+.result-card {
+  background: var(--surface-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 0.5px solid var(--border-col);
+}
+.result-header {
+  padding: 1.25rem 1.5rem;
+  display: flex; align-items: center; gap: 12px;
+}
+.result-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.result-name { font-size: 20px; font-weight: 500; }
+.result-category { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.result-body { padding: 0 1.5rem 1.5rem; }
+.result-desc {
+  font-size: 15px; color: var(--text-secondary);
+  line-height: 1.6; margin-bottom: 1.25rem;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
+.tag {
+  font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500;
+}
+.tag-green { background: var(--green-50); color: var(--green-600); }
+.tag-amber { background: var(--amber-50); color: var(--amber-600); }
+.tag-coral { background: var(--coral-50); color: var(--coral-600); }
+.tag-purple { background: var(--purple-50); color: var(--purple-600); }
+.tag-blue { background: var(--blue-50); color: var(--blue-600); }
+@media (prefers-color-scheme: dark) {
+  .tag-green { background: var(--green-800); color: var(--green-100); }
+  .tag-amber { background: var(--amber-800); color: var(--amber-100); }
+  .tag-coral { background: var(--coral-800); color: var(--coral-100); }
+  .tag-purple { background: var(--purple-800); color: var(--purple-100); }
+  .tag-blue { background: var(--blue-800); color: var(--blue-100); }
+}
+.result-divider { height: 0.5px; background: var(--border-col); margin: 0 0 1rem; }
+.detail-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 14px; margin-bottom: 10px; line-height: 1.5;
+}
+.detail-row span:first-child {
+  color: var(--text-muted); min-width: 90px; flex-shrink: 0; font-size: 13px;
+}
+.detail-row span:last-child { color: var(--text-secondary); }
+.action-row {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.5rem;
+}
+.btn-restart {
+  background: none; border: 0.5px solid var(--border-strong);
+  border-radius: 8px; padding: 10px 18px; cursor: pointer;
+  font-size: 14px; color: var(--text-primary); font-family: inherit;
+  transition: background 0.15s;
+}
+.btn-restart:hover { background: var(--surface-card2); }
+.btn-alt {
+  background: none; border: 0.5px solid var(--border-col);
+  border-radius: 8px; padding: 10px 18px; cursor: pointer;
+  font-size: 14px; color: var(--text-secondary); font-family: inherit;
+  transition: background 0.15s;
+}
+.btn-alt:hover { background: var(--surface-card2); }
+.also-consider {
+  background: var(--surface-card2);
+  border: 0.5px solid var(--border-col);
+  border-radius: 10px; padding: 1rem 1.25rem; margin-top: 1rem;
+}
+.also-title { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.also-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.also-chip {
+  background: none; border: 0.5px solid var(--border-col);
+  border-radius: 20px; padding: 4px 14px; font-size: 13px;
+  color: var(--text-secondary); cursor: pointer; font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+.also-chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+.fade-in { animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>Welche Labormethode für meine Frage?</h1>
+  <p class="subtitle">Seminar Epigenetik des Menschen – kandidatengenbasierte Ansätze</p>
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+  <div class="breadcrumb" id="breadcrumb"></div>
+  <div id="main"></div>
+</div>
+
+<script>
+const TREE = {
+  id: "start",
+  q: "Was möchtest du analysieren?",
+  hint: "Der erste Schritt bestimmt, welche biologische Ebene du in den Blick nimmst.",
+  opts: [
+    { label: "DNA-Methylierung", desc: "5-Methylcytosin an CpG-Dinukleotiden", icon: "🧬", color: "#EEEDFE",
+      next: {
+        id: "dnam_resolution",
+        q: "Welche Auflösung brauchst du?",
+        hint: "Reicht ein grober Überblick, oder geht es um präzise Quantifizierung an bestimmten CpGs?",
+        opts: [
+          { label: "Grob / global", desc: "Genereller Methylierungsstatus, wenige Loci", icon: "📊", color: "#FAEEDA",
+            next: {
+              id: "global_method",
+              q: "Wie soll nachgewiesen werden?",
+              hint: "Restriction-basiert ist historisch und günstig; ELISA ist schnell für bulk-Messungen.",
+              opts: [
+                { label: "Restriktionsverdau", desc: "HpaII vs. MspI, klassischer Ansatz", icon: "✂️", color: "#E1F5EE",
+                  result: "msap" },
+                { label: "Immunassay / Antikörper", desc: "Global 5mC-Gehalt messen", icon: "🔬", color: "#FAECE7",
+                  result: "elisa" },
+              ]
+            }
+          },
+          { label: "Einzelne CpGs / kandidatengenbasiert", desc: "Präzise Quantifizierung an bekannten Loci", icon: "🎯", color: "#E1F5EE",
+            next: {
+              id: "single_cpg",
+              q: "Wie präzise muss die Quantifizierung sein?",
+              hint: "MSP sagt nur methyliert/unmethyliert; Pyrosequencing gibt dir genaue Prozentwerte.",
+              opts: [
+                { label: "Qualitativ / binär", desc: "Ist dieser Locus methyliert – ja oder nein?", icon: "✅", color: "#EAF3DE",
+                  result: "msp" },
+                { label: "Quantitativ", desc: "Wie viel Prozent ist methyliert?", icon: "📐", color: "#EEEDFE",
+                  result: "pyro" },
+              ]
+            }
+          },
+          { label: "Anreicherung methylierter Regionen", desc: "Welche Regionen sind generell methyliert?", icon: "🧲", color: "#E6F1FB",
+            result: "medip" },
+        ]
+      }
+    },
+    { label: "Histon-Modifikationen", desc: "Acetylierung, Methylierung von Histonschwänzen", icon: "🔗", color: "#E1F5EE",
+      next: {
+        id: "histone_goal",
+        q: "Was ist dein Ziel?",
+        hint: "ChIP ist der Standard für Histon-Modifikationen; die nachgeschaltete Analytik entscheidet.",
+        opts: [
+          { label: "Bestimmter Locus / kandidatengenbasiert", desc: "Bindet H3K4me3 an meinem Promotor?", icon: "🎯", color: "#EEEDFE",
+            result: "chip" },
+          { label: "Globaler Überblick", desc: "Wie viel H3K27ac ist insgesamt vorhanden?", icon: "📊", color: "#FAEEDA",
+            result: "elisa_histone" },
+        ]
+      }
+    },
+    { label: "Regulatorische RNAs", desc: "miRNAs, lncRNAs – Expressionslevel messen", icon: "🔁", color: "#FAEEDA",
+      result: "mirna_qpcr"
+    },
+  ]
+};
+
+const RESULTS = {
+  msap: {
+    name: "Restriktionsverdau (MSAP/RFLP)",
+    icon: "✂️", color: "#E1F5EE", iconBg: "#1D9E75",
+    category: "Restriktionsenzymatische Methoden",
+    desc: "HpaII schneidet nur unmethylierte CCGG-Sequenzen, MspI ist methylierungsinsensitiv – der Größenvergleich der Fragmente zeigt den Methylierungsstatus. Historisch die erste Methode zur Analyse von DNA-Methylierung (Anfang der 1980er). Günstig, kein Bisulfit nötig, aber nur geringe Auflösung.",
+    pros: ["Günstig und einfach", "Kein Bisulfitschritt nötig", "Historisch gut dokumentiert"],
+    cons: ["Nur CCGG-Sequenzen", "Keine quantitative Aussage", "Geringe genomische Abdeckung"],
+    tissue: "Frisches oder gefrorenes Gewebe, auch FFPE eingeschränkt möglich",
+    resolution: "Locus-basiert, keine Einzelbasen-Auflösung",
+    throughput: "Niedrig bis mittel",
+    tags: [
+      { label: "historisch", cls: "tag-amber" }, { label: "günstig", cls: "tag-green" },
+      { label: "kein Bisulfit", cls: "tag-teal" }, { label: "kandidatengen", cls: "tag-purple" }
+    ],
+    also: ["msp", "pyro"]
+  },
+  msp: {
+    name: "MSP (Methylierungsspezifische PCR)",
+    icon: "🔵", color: "#EEEDFE", iconBg: "#534AB7",
+    category: "Bisulfit-basierte Methoden",
+    desc: "Nach Bisulfitkonversion werden zwei Primerpaare verwendet: Primer M bindet nur methylierte, Primer U nur unmethylierte Sequenzen. Das Produkt im Gel zeigt qualitativ, ob Methylierung vorliegt. Schnell und sensitiv, aber keine Quantifizierung möglich.",
+    pros: ["Schnell und kostengünstig", "Sehr sensitiv", "Für viele Loci etabliert"],
+    cons: ["Nur qualitativ (ja/nein)", "Primerdesign kritisch", "Bisulfit-Schritt nötig"],
+    tissue: "Frisches, gefrorenes Gewebe, Blut; FFPE eingeschränkt",
+    resolution: "Einzelbasen-Auflösung möglich, aber nur qualitativ",
+    throughput: "Niedrig bis mittel",
+    tags: [
+      { label: "qualitativ", cls: "tag-amber" }, { label: "bisulfit", cls: "tag-coral" },
+      { label: "PCR-basiert", cls: "tag-blue" }, { label: "kandidatengen", cls: "tag-purple" }
+    ],
+    also: ["pyro", "msap"]
+  },
+  pyro: {
+    name: "Pyrosequencing",
+    icon: "💡", color: "#FAEEDA", iconBg: "#BA7517",
+    category: "Bisulfit-basierte Methoden",
+    desc: "Sequenzierung durch Synthese: Pyrophosphat wird bei jeder Basenpaarung freigesetzt, über eine Luciferase-Reaktion in Licht umgewandelt. Nach Bisulfitkonversion gibt das Signal an jedem CpG genau den Methylierungsgrad in Prozent an. Goldstandard für quantitative kandidatengenbasierte Methylierungsanalyse.",
+    pros: ["Präzise Quantifizierung (% Methylierung)", "Gut reproduzierbar", "Bewährt in psychiatrischen Epigenetikstudien"],
+    cons: ["Bisulfit-Schritt nötig", "Kurze Leselänge (~50–100 bp)", "Primerdesign aufwändig"],
+    tissue: "Frisches, gefrorenes Gewebe, Blut, FFPE; liquid biopsy",
+    resolution: "Basengenau, quantitativ",
+    throughput: "Mittel",
+    tags: [
+      { label: "quantitativ", cls: "tag-green" }, { label: "bisulfit", cls: "tag-coral" },
+      { label: "Goldstandard", cls: "tag-purple" }, { label: "kandidatengen", cls: "tag-blue" }
+    ],
+    also: ["msp", "medip"]
+  },
+  medip: {
+    name: "MeDIP (Methylated DNA Immunoprecipitation)",
+    icon: "🧲", color: "#E6F1FB", iconBg: "#185FA5",
+    category: "Affinitätsanreicherung",
+    desc: "Fragmentierte DNA wird mit einem 5mC-spezifischen Antikörper inkubiert und angereichert (präzipitiert). Das angereicherte Material kann mit PCR analysiert werden. Ermöglicht die Untersuchung methylierter Regionen ohne Bisulfitkonversion, aber keine Einzelbasen-Auflösung.",
+    pros: ["Kein Bisulfit nötig", "Sensitiv für dicht methylierte Regionen", "Kombinierbar mit PCR oder Arrays"],
+    cons: ["Keine Einzelbasen-Auflösung", "Antikörperspezifität kritisch", "Ergebnis qualitativ/semi-quantitativ"],
+    tissue: "Frisches oder gefrorenes Gewebe empfohlen; größere DNA-Menge nötig",
+    resolution: "Regional, keine Einzelbasen-Auflösung",
+    throughput: "Mittel",
+    tags: [
+      { label: "antikörperbasiert", cls: "tag-blue" }, { label: "kein Bisulfit", cls: "tag-green" },
+      { label: "semi-quantitativ", cls: "tag-amber" }, { label: "kandidatengen", cls: "tag-purple" }
+    ],
+    also: ["pyro", "chip"]
+  },
+  elisa: {
+    name: "ELISA (globale 5mC-Quantifizierung)",
+    icon: "🔬", color: "#FAECE7", iconBg: "#993C1D",
+    category: "Immunassay / Affinitätsanreicherung",
+    desc: "Enzyme-linked immunosorbent assay mit 5mC-spezifischem Antikörper: ermöglicht die Quantifizierung des globalen DNA-Methylierungsgehalts einer Probe. Verschiedene Formate (direct, indirect, sandwich, competitive). Schnell, für viele Proben gleichzeitig, aber keine Locus-spezifische Information.",
+    pros: ["Hoher Durchsatz", "Kein Bisulfit nötig", "Viele Proben gleichzeitig"],
+    cons: ["Keine Locus-spezifische Auflösung", "Nur globale Aussage", "Antikörperspezifität beachten"],
+    tissue: "Flexibel; auch kleine DNA-Mengen möglich",
+    resolution: "Global (kein Locus-spezifisches Signal)",
+    throughput: "Hoch",
+    tags: [
+      { label: "global", cls: "tag-amber" }, { label: "hoher Durchsatz", cls: "tag-green" },
+      { label: "kein Bisulfit", cls: "tag-blue" }, { label: "antikörperbasiert", cls: "tag-coral" }
+    ],
+    also: ["msap", "medip"]
+  },
+  chip: {
+    name: "ChIP-qPCR",
+    icon: "🔗", color: "#E1F5EE", iconBg: "#1D9E75",
+    category: "Chromatin-Immunpräzipitation",
+    desc: "Chromatin wird fragmentiert, ein Antikörper gegen die gesuchte Histon-Modifikation präzipitiert die zugehörige DNA. Anschließend wird an bestimmten Loci per qPCR quantifiziert. Standard für kandidatengenbasierte Histon-Modifikations-Analysen.",
+    pros: ["Spezifisch für einzelne Histon-Modifikationen", "Locus-spezifisch", "Semi-quantitativ bis quantitativ"],
+    cons: ["Proteinquervernetzung und Fragmentierung kritisch", "Antikörperqualität entscheidend", "Aufwändig, viel Ausgangsmaterial"],
+    tissue: "Frisches Gewebe oder Zellkultur bevorzugt; FFPE sehr schwierig",
+    resolution: "Locus-basiert (Primerdesign)",
+    throughput: "Niedrig bis mittel",
+    tags: [
+      { label: "histonmodifikation", cls: "tag-teal" }, { label: "kandidatengen", cls: "tag-purple" },
+      { label: "antikörperbasiert", cls: "tag-blue" }, { label: "ChIP", cls: "tag-green" }
+    ],
+    also: ["elisa_histone", "medip"]
+  },
+  elisa_histone: {
+    name: "ELISA (globale Histon-Modifikationen)",
+    icon: "📊", color: "#FAEEDA", iconBg: "#BA7517",
+    category: "Immunassay",
+    desc: "Globale Quantifizierung von Histon-Modifikationen (z.B. gesamt-H3K27ac, H3K4me3) per ELISA. Kein ChIP nötig, schnell und für viele Proben geeignet, aber keine Locus-spezifische Aussage.",
+    pros: ["Schnell, kein ChIP", "Viele Proben gleichzeitig", "Semiquantitativ"],
+    cons: ["Keine genomische Lokalisation", "Nur globale Aussage", "Antikörperspezifität beachten"],
+    tissue: "Flexible Anforderungen an Ausgangsmaterial",
+    resolution: "Global",
+    throughput: "Hoch",
+    tags: [
+      { label: "global", cls: "tag-amber" }, { label: "histon", cls: "tag-teal" },
+      { label: "hoher Durchsatz", cls: "tag-green" }
+    ],
+    also: ["chip"]
+  },
+  mirna_qpcr: {
+    name: "miRNA-Expression per qPCR",
+    icon: "🔁", color: "#FAEEDA", iconBg: "#854F0B",
+    category: "Regulatorische RNAs",
+    desc: "MicroRNAs werden aus Gewebe oder Flüssigbiopsien (Serum, Plasma) isoliert, in cDNA umgeschrieben (mit stem-loop RT-Primer) und mit spezifischen Primerpaaren per quantitativer PCR gemessen. Gut etabliert, sensitiv, auch aus kleinen Mengen biologischen Materials.",
+    pros: ["Sensitiv, auch aus Serum/Plasma", "Gut etabliert und standardisiert", "Viele validierte Primersets verfügbar"],
+    cons: ["RT-Step kritisch (stem-loop Primer)", "Normierung schwierig (kein housekeeping miRNA-Standard)", "Kein Rückschluss auf Methylierungsstatus der miRNA-Gene"],
+    tissue: "Flexibel: Gewebe, Blut, Serum, FFPE",
+    resolution: "Locus-spezifisch (einzelne miRNAs)",
+    throughput: "Mittel bis hoch",
+    tags: [
+      { label: "miRNA", cls: "tag-amber" }, { label: "qPCR", cls: "tag-blue" },
+      { label: "liquid biopsy", cls: "tag-green" }, { label: "kandidatengen", cls: "tag-purple" }
+    ],
+    also: ["chip"]
+  },
+};
+
+let path = [];
+let current = TREE;
+
+function render() {
+  const main = document.getElementById("main");
+  const prog = document.getElementById("progress");
+  const bread = document.getElementById("breadcrumb");
+
+  const depth = path.length;
+  const maxDepth = 4;
+  prog.style.width = Math.min(100, (depth / maxDepth) * 100) + "%";
+
+  bread.innerHTML = path.map((p, i) => `
+    <span class="breadcrumb-step">
+      <span class="breadcrumb-label">${p.choice}</span>
+    </span>
+  `).join("");
+
+  if (current.result) {
+    showResult(current.result);
+    return;
+  }
+
+  main.innerHTML = `
+    <div class="card fade-in">
+      <div class="question">${current.q}</div>
+      ${current.hint ? `<div class="hint">${current.hint}</div>` : ""}
+      <div class="options">
+        ${current.opts.map((o, i) => `
+          <button class="opt-btn" onclick="choose(${i})" style="border-left: 3px solid ${o.color}80;">
+            <span class="opt-icon" style="background:${o.color};">${o.icon}</span>
+            <span>
+              <span class="opt-label">${o.label}</span>
+              <span class="opt-desc">${o.desc}</span>
+            </span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+    ${path.length > 0 ? `<button class="btn-alt" onclick="goBack()" style="margin-top:0.5rem;">← Zurück</button>` : ""}
+  `;
+}
+
+function choose(i) {
+  const opt = current.opts[i];
+  path.push({ choice: opt.label, node: current });
+  if (opt.result) {
+    current = { result: opt.result };
+  } else {
+    current = opt.next;
+  }
+  document.getElementById("main").classList.remove("fade-in");
+  render();
+}
+
+function goBack() {
+  if (path.length === 0) return;
+  const prev = path.pop();
+  current = prev.node;
+  render();
+}
+
+function restart() {
+  path = [];
+  current = TREE;
+  render();
+}
+
+function showResult(id) {
+  const r = RESULTS[id];
+  const main = document.getElementById("main");
+
+  const tagHtml = (r.tags || []).map(t => `<span class="tag ${t.cls}">${t.label}</span>`).join("");
+
+  const alsoHtml = (r.also || []).filter(a => RESULTS[a]).map(a =>
+    `<button class="also-chip" onclick="jumpTo('${a}')">${RESULTS[a].name}</button>`
+  ).join("");
+
+  main.innerHTML = `
+    <div class="result-card fade-in">
+      <div class="result-header" style="background:${r.color}30;">
+        <div class="result-icon" style="background:${r.iconBg}20;">${r.icon}</div>
+        <div>
+          <div class="result-name">${r.name}</div>
+          <div class="result-category">${r.category}</div>
+        </div>
+      </div>
+      <div class="result-body">
+        <div class="tags" style="margin-top:1rem;">${tagHtml}</div>
+        <div class="result-desc">${r.desc}</div>
+        <div class="result-divider"></div>
+        <div class="detail-row"><span>Gewebe</span><span>${r.tissue}</span></div>
+        <div class="detail-row"><span>Auflösung</span><span>${r.resolution}</span></div>
+        <div class="detail-row"><span>Durchsatz</span><span>${r.throughput}</span></div>
+        <div class="detail-row" style="margin-bottom:0;"><span>Vorteile</span><span>${r.pros.join(" · ")}</span></div>
+        <div class="action-row">
+          <button class="btn-restart" onclick="restart()">↩ Neu starten</button>
+          <button class="btn-alt" onclick="goBack()">← Zurück</button>
+        </div>
+      </div>
+    </div>
+    ${alsoHtml ? `
+    <div class="also-consider">
+      <div class="also-title">Auch relevant</div>
+      <div class="also-items">${alsoHtml}</div>
+    </div>` : ""}
+  `;
+}
+
+function jumpTo(id) {
+  path = [];
+  current = { result: id };
+  document.getElementById("breadcrumb").innerHTML = "";
+  document.getElementById("progress").style.width = "100%";
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
