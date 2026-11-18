@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Case Study – Epigenetik des Menschen</title>
+<style>
+:root {
+  --purple-50:#EEEDFE;--purple-100:#CECBF6;--purple-200:#AFA9EC;--purple-400:#7F77DD;--purple-600:#534AB7;--purple-800:#3C3489;
+  --teal-50:#E1F5EE;--teal-100:#9FE1CB;--teal-400:#1D9E75;--teal-600:#0F6E56;--teal-800:#085041;
+  --amber-50:#FAEEDA;--amber-100:#FAC775;--amber-400:#BA7517;--amber-600:#854F0B;--amber-800:#633806;
+  --coral-50:#FAECE7;--coral-100:#F5C4B3;--coral-400:#D85A30;--coral-600:#993C1D;--coral-800:#712B13;
+  --blue-50:#E6F1FB;--blue-100:#B5D4F4;--blue-400:#378ADD;--blue-600:#185FA5;--blue-800:#0C447C;
+  --green-50:#EAF3DE;--green-100:#C0DD97;--green-400:#639922;--green-600:#3B6D11;--green-800:#27500A;
+  --red-50:#FCEBEB;--red-100:#F7C1C1;--red-400:#E24B4A;--red-600:#A32D2D;--red-800:#791F1F;
+  --gray-50:#F1EFE8;--gray-100:#D3D1C7;--gray-200:#B4B2A9;--gray-400:#888780;--gray-600:#5F5E5A;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#1a1a1a;--card:#242424;--card2:#2e2e2e;--card3:#383836;--tp:#f0f0ee;--ts:#a8a8a2;--tm:#6e6e68;--bd:rgba(255,255,255,0.1);--bds:rgba(255,255,255,0.18)}
+}
+@media(prefers-color-scheme:light){
+  :root{--bg:#f8f7f4;--card:#ffffff;--card2:#f1efe8;--card3:#e8e6df;--tp:#1a1a18;--ts:#5f5e5a;--tm:#888780;--bd:rgba(0,0,0,0.08);--bds:rgba(0,0,0,0.14)}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--tp);min-height:100vh;padding:1.75rem 1rem 3rem}
+.wrapper{max-width:780px;margin:0 auto}
+
+.top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px}
+.chip{font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;border:0.5px solid var(--bd);background:var(--card2);color:var(--ts)}
+.chip-case{background:var(--amber-50);border-color:var(--amber-100);color:var(--amber-600)}
+@media(prefers-color-scheme:dark){.chip-case{background:var(--amber-800);border-color:var(--amber-400);color:var(--amber-100)}}
+h1{font-size:19px;font-weight:500;color:var(--tp);line-height:1.3}
+
+.vignette{background:var(--card);border:0.5px solid var(--bd);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.vignette::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--amber-400)}
+.vignette-label{font-size:11px;font-weight:500;color:var(--amber-600);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.75rem}
+@media(prefers-color-scheme:dark){.vignette-label{color:var(--amber-100)}}
+.vignette-text{font-size:15px;line-height:1.7;color:var(--tp)}
+.vignette-text strong{font-weight:500}
+
+.constraints{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:1.25rem}
+.constraint{background:var(--card2);border:0.5px solid var(--bd);border-radius:8px;padding:0.75rem 1rem;display:flex;gap:10px;align-items:flex-start}
+.c-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.c-label{font-size:12px;font-weight:500;color:var(--tp);margin-bottom:2px}
+.c-desc{font-size:12px;color:var(--ts);line-height:1.4}
+
+.section-title{font-size:13px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:0.07em;margin:1.5rem 0 0.75rem}
+
+.questions{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem}
+.q-item{background:var(--card);border:0.5px solid var(--bd);border-radius:10px;overflow:hidden;transition:border-color 0.2s}
+.q-item.open{border-color:var(--bds)}
+.q-header{display:flex;align-items:center;gap:12px;padding:0.875rem 1rem;cursor:pointer;user-select:none}
+.q-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.q-num-purple{background:var(--purple-50);color:var(--purple-600)}
+.q-num-teal{background:var(--teal-50);color:var(--teal-600)}
+.q-num-blue{background:var(--blue-50);color:var(--blue-600)}
+.q-num-coral{background:var(--coral-50);color:var(--coral-600)}
+@media(prefers-color-scheme:dark){
+  .q-num-purple{background:var(--purple-800);color:var(--purple-100)}
+  .q-num-teal{background:var(--teal-800);color:var(--teal-100)}
+  .q-num-blue{background:var(--blue-800);color:var(--blue-100)}
+  .q-num-coral{background:var(--coral-800);color:var(--coral-100)}
+}
+.q-text{font-size:14px;font-weight:500;color:var(--tp);flex:1;line-height:1.4}
+.q-arrow{font-size:14px;color:var(--tm);transition:transform 0.2s;flex-shrink:0}
+.q-item.open .q-arrow{transform:rotate(90deg)}
+.q-hint{display:none;padding:0 1rem 1rem 3rem;font-size:13px;color:var(--ts);line-height:1.6;border-top:0.5px solid var(--bd)}
+.q-hint-inner{padding-top:0.75rem}
+.q-item.open .q-hint{display:block}
+
+.vote-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:0.75rem}
+.vote-btn{background:var(--card2);border:0.5px solid var(--bd);border-radius:6px;padding:5px 14px;font-size:13px;color:var(--ts);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.vote-btn:hover{border-color:var(--bds);color:var(--tp)}
+.vote-btn.voted{font-weight:500}
+.vote-btn.voted.v-pyro{background:var(--purple-50);border-color:var(--purple-400);color:var(--purple-600)}
+.vote-btn.voted.v-msp{background:var(--blue-50);border-color:var(--blue-400);color:var(--blue-600)}
+.vote-btn.voted.v-msap{background:var(--amber-50);border-color:var(--amber-400);color:var(--amber-600)}
+.vote-btn.voted.v-medip{background:var(--teal-50);border-color:var(--teal-400);color:var(--teal-600)}
+.vote-btn.voted.v-ngs{background:var(--coral-50);border-color:var(--coral-400);color:var(--coral-600)}
+.vote-btn.voted.v-sanger{background:var(--blue-50);border-color:var(--blue-400);color:var(--blue-600)}
+.vote-btn.voted.v-epityper{background:var(--green-50);border-color:var(--green-400);color:var(--green-600)}
+@media(prefers-color-scheme:dark){
+  .vote-btn.voted.v-pyro{background:var(--purple-800);border-color:var(--purple-400);color:var(--purple-100)}
+  .vote-btn.voted.v-msp{background:var(--blue-800);border-color:var(--blue-400);color:var(--blue-100)}
+  .vote-btn.voted.v-msap{background:var(--amber-800);border-color:var(--amber-400);color:var(--amber-100)}
+  .vote-btn.voted.v-medip{background:var(--teal-800);border-color:var(--teal-400);color:var(--teal-100)}
+  .vote-btn.voted.v-ngs{background:var(--coral-800);border-color:var(--coral-400);color:var(--coral-100)}
+  .vote-btn.voted.v-sanger{background:var(--blue-800);border-color:var(--blue-400);color:var(--blue-100)}
+  .vote-btn.voted.v-epityper{background:var(--green-800);border-color:var(--green-400);color:var(--green-100)}
+}
+
+.reveal-btn{width:100%;background:var(--card);border:1.5px dashed var(--bds);border-radius:10px;padding:1rem;font-size:14px;font-weight:500;color:var(--ts);cursor:pointer;font-family:inherit;transition:all 0.2s;margin-bottom:1rem}
+.reveal-btn:hover{background:var(--card2);color:var(--tp)}
+
+.solution{display:none;animation:fadeUp 0.3s ease}
+.solution.visible{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.sol-card{background:var(--card);border:0.5px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.sol-header{background:var(--green-50);padding:1rem 1.25rem;display:flex;align-items:center;gap:12px;border-bottom:0.5px solid var(--bd)}
+@media(prefers-color-scheme:dark){.sol-header{background:var(--green-800)}}
+.sol-icon{font-size:28px}
+.sol-name{font-size:18px;font-weight:500;color:var(--green-800)}
+.sol-sub{font-size:13px;color:var(--green-600);margin-top:2px}
+@media(prefers-color-scheme:dark){.sol-name{color:var(--green-100)};.sol-sub{color:var(--green-100)}}
+.sol-body{padding:1.25rem}
+.sol-reason{font-size:14px;color:var(--ts);line-height:1.7;margin-bottom:1.25rem}
+.sol-reason strong{color:var(--tp);font-weight:500}
+
+.pro-con-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.pro-box{background:var(--green-50);border:0.5px solid var(--green-100);border-radius:8px;padding:0.875rem}
+.con-box{background:var(--red-50);border:0.5px solid var(--red-100);border-radius:8px;padding:0.875rem}
+@media(prefers-color-scheme:dark){
+  .pro-box{background:var(--green-800);border-color:var(--green-600)}
+  .con-box{background:var(--red-800);border-color:var(--red-600)}
+}
+.pc-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.pro-box .pc-title{color:var(--green-600)}
+.con-box .pc-title{color:var(--red-600)}
+@media(prefers-color-scheme:dark){.pro-box .pc-title{color:var(--green-100)}.con-box .pc-title{color:var(--red-100)}}
+.pc-item{font-size:13px;color:var(--ts);line-height:1.5;margin-bottom:4px;padding-left:14px;position:relative}
+.pc-item::before{content:"·";position:absolute;left:4px;color:var(--tm)}
+
+.also-sol{background:var(--card2);border:0.5px solid var(--bd);border-radius:10px;padding:1rem 1.25rem}
+.also-sol-title{font-size:12px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
+.also-sol-items{display:flex;flex-direction:column;gap:8px}
+.also-sol-item{font-size:13px;color:var(--ts);line-height:1.5;padding-left:16px;position:relative}
+.also-sol-item::before{content:"→";position:absolute;left:0;color:var(--tm)}
+.also-sol-item strong{color:var(--tp);font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="top-row">
+    <span class="chip chip-case">Case Study</span>
+    <span class="chip">Seminar Epigenetik des Menschen</span>
+  </div>
+  <h1 style="margin-bottom:1.25rem">Welche Methode für diese Proben?</h1>
+
+  <div class="vignette">
+    <div class="vignette-label">Fallvignette</div>
+    <div class="vignette-text">
+      Sie haben Zugang zu <strong>50 post-mortem Gehirnproben</strong> aus einer psychiatrischen Biobank.
+      Die Proben sind <strong>formalinfixiert und in Paraffin eingebettet (FFPE)</strong>, stammen aus dem
+      präfrontalen Kortex und sind im Schnitt <strong>8 Jahre alt</strong>. Sie möchten untersuchen,
+      ob ein spezifischer CpG-Locus im Promotor des <em>BDNF</em>-Gens in Erkrankten anders
+      methyliert ist als in Kontrollen.
+    </div>
+
+    <div class="constraints">
+      <div class="constraint">
+        <span class="c-icon">🧠</span>
+        <div><div class="c-label">Gewebe</div><div class="c-desc">FFPE, präfrontaler Kortex, post-mortem</div></div>
+      </div>
+      <div class="constraint">
+        <span class="c-icon">🗓️</span>
+        <div><div class="c-label">Probenalter</div><div class="c-desc">Ø 8 Jahre, DNA degradiert und quervernetzt</div></div>
+      </div>
+      <div class="constraint">
+        <span class="c-icon">🎯</span>
+        <div><div class="c-label">Fragestellung</div><div class="c-desc">Einzelner Locus, BDNF-Promotor CpG</div></div>
+      </div>
+      <div class="constraint">
+        <span class="c-icon">📊</span>
+        <div><div class="c-label">Ziel</div><div class="c-desc">Quantitativer Vergleich: Erkrankte vs. Kontrollen</div></div>
+      </div>
+      <div class="constraint">
+        <span class="c-icon">🔢</span>
+        <div><div class="c-label">Stichprobe</div><div class="c-desc">n=50, für statistische Power ausreichend</div></div>
+      </div>
+      <div class="constraint">
+        <span class="c-icon">💰</span>
+        <div><div class="c-label">Budget</div><div class="c-desc">Mittel – kein Whole-Genome-Ansatz</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Diskussionsfragen – erst überlegen, dann aufklappen</div>
+
+  <div class="questions">
+
+    <div class="q-item" id="q1">
+      <div class="q-header" onclick="toggleQ('q1')">
+        <span class="q-num q-num-purple">1</span>
+        <span class="q-text">Welche Eigenschaft des Materials ist methodisch am kritischsten?</span>
+        <span class="q-arrow">▶</span>
+      </div>
+      <div class="q-hint">
+        <div class="q-hint-inner">
+          FFPE-Gewebe enthält stark <strong>fragmentierte und chemisch modifizierte DNA</strong> – die Formalinfixierung vernetzt Proteine mit DNA (Crosslinks) und verursacht Cytosin-Desaminierung. Das schränkt viele Methoden erheblich ein:<br><br>
+          · Lange PCR-Amplifikate sind kaum möglich (Fragmentgröße oft &lt;200 bp)<br>
+          · Bisulfitkonversion funktioniert, aber die Effizienz ist geringer als bei frischer DNA<br>
+          · Antikörper-basierte Anreicherung (MeDIP, ChIP) ist durch Crosslinks stark eingeschränkt<br>
+          · Restriktionsverdau kann durch die chemische Modifikation unvollständig sein
+        </div>
+      </div>
+    </div>
+
+    <div class="q-item" id="q2">
+      <div class="q-header" onclick="toggleQ('q2')">
+        <span class="q-num q-num-teal">2</span>
+        <span class="q-text">Welche Methoden scheiden dadurch aus – und warum?</span>
+        <span class="q-arrow">▶</span>
+      </div>
+      <div class="q-hint">
+        <div class="q-hint-inner">
+          <strong>ChIP-qPCR:</strong> Erfordert intaktes Chromatin und lösliche Proteinkomplexe – bei FFPE durch Crosslinks und Degradierung kaum durchführbar. Gilt als Ausschlusskriterium.<br><br>
+          <strong>MeDIP-PCR:</strong> Antikörper-Präzipitation setzt ausreichend intakte, nicht-quervernetzte DNA voraus. Für FFPE sehr problematisch, Ergebnisse wenig reproduzierbar.<br><br>
+          <strong>MSAP / RFLP:</strong> Restriktionsverdau benötigt erkennbare, unmodifizierte Schnittstellen. Chemische FFPE-Modifikationen können falsch-negative Ergebnisse produzieren.<br><br>
+          <strong>Methoden mit langen Amplifikaten:</strong> Generell ungeeignet für stark fragmentiertes FFPE-Material.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-item" id="q3">
+      <div class="q-header" onclick="toggleQ('q3')">
+        <span class="q-num q-num-blue">3</span>
+        <span class="q-text">Brauchen wir eine quantitative Aussage – oder reicht qualitativ?</span>
+        <span class="q-arrow">▶</span>
+      </div>
+      <div class="q-hint">
+        <div class="q-hint-inner">
+          Die Fragestellung lautet: <em>Ist der BDNF-Locus in Erkrankten anders methyliert als in Kontrollen?</em><br><br>
+          „Anders" bedeutet hier einen <strong>graduellen Unterschied</strong> (z.B. 15% vs. 35% Methylierung) – keine binäre ja/nein-Antwort. Eine rein qualitative Methode wie MSP würde möglicherweise beide Gruppen als „methyliert" klassifizieren und den Unterschied unsichtbar machen.<br><br>
+          Für einen statistisch belastbaren Gruppenvergleich mit n=50 brauchen wir also <strong>kontinuierliche, quantitative Werte</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-item" id="q4">
+      <div class="q-header" onclick="toggleQ('q4')">
+        <span class="q-num q-num-coral">4</span>
+        <span class="q-text">Was bleibt übrig? Stimmt ab: Welche Methode würdet ihr wählen?</span>
+        <span class="q-arrow">▶</span>
+      </div>
+      <div class="q-hint">
+        <div class="q-hint-inner">
+          Diskutiert kurz in der Gruppe, dann wählen:
+          <div class="vote-row">
+            <button class="vote-btn v-pyro" onclick="vote(this,'v-pyro')">Pyrosequencing</button>
+            <button class="vote-btn v-msp" onclick="vote(this,'v-msp')">MSP</button>
+            <button class="vote-btn v-msap" onclick="vote(this,'v-msap')">MSAP / RFLP</button>
+            <button class="vote-btn v-medip" onclick="vote(this,'v-medip')">MeDIP-PCR</button>
+            <button class="vote-btn v-sanger" onclick="vote(this,'v-sanger')">Bisulfit-Sanger</button>
+            <button class="vote-btn v-epityper" onclick="vote(this,'v-epityper')">EpiTYPER</button>
+            <button class="vote-btn v-ngs" onclick="vote(this,'v-ngs')">Illumina Amplicon</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="reveal-btn" id="revealBtn" onclick="reveal()">
+    ▼ Auflösung anzeigen
+  </button>
+
+  <div class="solution" id="solution">
+    <div class="sol-card">
+      <div class="sol-header">
+        <span class="sol-icon">💡</span>
+        <div>
+          <div class="sol-name">Pyrosequencing</div>
+          <div class="sol-sub">nach Bisulfitkonversion · Goldstandard für FFPE-Methylierungsanalyse</div>
+        </div>
+      </div>
+      <div class="sol-body">
+        <div class="sol-reason">
+          Pyrosequencing nach Bisulfitkonversion ist die Methode der Wahl: <strong>kurze Amplifikate (50–100 bp)</strong> sind kompatibel mit FFPE-typischer DNA-Fragmentierung. Die Bisulfitkonversion funktioniert auch bei degradierter DNA, und das Verfahren liefert <strong>genaue prozentuale Methylierungswerte</strong> pro CpG – ideal für den quantitativen Gruppenvergleich. Für FFPE-Gehirnproben in psychiatrischen Studien ist es der etablierte Standard.
+        </div>
+        <div class="pro-con-grid">
+          <div class="pro-box">
+            <div class="pc-title">Dafür spricht</div>
+            <div class="pc-item">Kurze Amplifikate → FFPE-kompatibel</div>
+            <div class="pc-item">Quantitativ (% pro CpG)</div>
+            <div class="pc-item">Gut reproduzierbar, etabliert</div>
+            <div class="pc-item">Für n=50 gut skalierbar</div>
+            <div class="pc-item">Validiert für post-mortem Gehirn</div>
+          </div>
+          <div class="con-box">
+            <div class="pc-title">Einschränkungen</div>
+            <div class="pc-item">Bisulfit-Schritt degradiert DNA weiter</div>
+            <div class="pc-item">Kurze Leselänge (~50–100 bp)</div>
+            <div class="pc-item">Nur bekannte Loci analysierbar</div>
+            <div class="pc-item">Primerdesign für FFPE optimieren</div>
+          </div>
+        </div>
+        <div class="also-sol">
+          <div class="also-sol-title">Was wäre noch vertretbar?</div>
+          <div class="also-sol-items">
+            <div class="also-sol-item"><strong>Bisulfit-Sanger-Sequenzierung:</strong> funktioniert mit kurzen Amplifikaten und ist einfacher aufzusetzen als Pyrosequencing, aber die Quantifizierung über Peakhöhen ist weniger präzise und arbeitsintensiver auszuwerten.</div>
+            <div class="also-sol-item"><strong>EpiTYPER (MassARRAY):</strong> FFPE-kompatibel und deckt eine ganze Region in einem Lauf ab. Gute Alternative wenn mehrere CpGs im BDNF-Promotor gleichzeitig analysiert werden sollen – aber teurere Infrastruktur nötig.</div>
+            <div class="also-sol-item"><strong>Illumina Targeted Amplicon Sequencing:</strong> technisch FFPE-möglich mit optimierten Protokollen, für einen einzelnen Locus mit n=50 aber überdimensioniert. Sinnvoll wenn weitere Loci parallel untersucht werden sollen.</div>
+            <div class="also-sol-item"><strong>MSP:</strong> nur qualitativ – für einen Gruppenvergleich mit graduellen Unterschieden zu unspezifisch. Allenfalls als schnelles Vorscreening.</div>
+            <div class="also-sol-item"><strong>MeDIP, ChIP, MSAP:</strong> für FFPE nicht empfohlen – Crosslinks und Fragmentierung führen zu hoher Fehlerrate und schlechter Reproduzierbarkeit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleQ(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle("open");
+}
+
+function vote(btn, cls) {
+  document.querySelectorAll(".vote-btn").forEach(b => b.classList.remove("voted","v-pyro","v-msp","v-msap","v-medip","v-ngs","v-sanger","v-epityper"));
+  btn.classList.add("voted", cls);
+  if (!document.getElementById("q4").classList.contains("open")) {
+    document.getElementById("q4").classList.add("open");
+  }
+}
+
+function reveal() {
+  const sol = document.getElementById("solution");
+  sol.classList.add("visible");
+  document.getElementById("revealBtn").style.display = "none";
+  sol.scrollIntoView({behavior:"smooth", block:"start"});
+}
+</script>
+</body>
+</html>

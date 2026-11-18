@@ -233,13 +233,37 @@ const TREE = {
           { label: "Einzelne CpGs / kandidatengenbasiert", desc: "Präzise Quantifizierung an bekannten Loci", icon: "🎯", color: "#E1F5EE",
             next: {
               id: "single_cpg",
-              q: "Wie präzise muss die Quantifizierung sein?",
-              hint: "MSP sagt nur methyliert/unmethyliert; Pyrosequencing gibt dir genaue Prozentwerte.",
+              q: "Wie präzise und wie viele CpGs auf einmal?",
+              hint: "MSP ist schnell aber nur qualitativ; Pyrosequencing und Sanger quantifizieren; EpiTYPER deckt viele CpGs in einem Lauf ab.",
               opts: [
                 { label: "Qualitativ / binär", desc: "Ist dieser Locus methyliert – ja oder nein?", icon: "✅", color: "#EAF3DE",
                   result: "msp" },
-                { label: "Quantitativ", desc: "Wie viel Prozent ist methyliert?", icon: "📐", color: "#EEEDFE",
-                  result: "pyro" },
+                { label: "Quantitativ, wenige CpGs", desc: "Genaue % pro CpG, kurze Region", icon: "📐", color: "#EEEDFE",
+                  next: {
+                    id: "quant_method",
+                    q: "Welche quantitative Methode?",
+                    hint: "Pyrosequencing ist der Goldstandard; Bisulfit-Sanger ist einfacher aufzusetzen aber weniger präzise; Illumina Amplicon bietet mehr Loci gleichzeitig.",
+                    opts: [
+                      { label: "Pyrosequencing", desc: "Goldstandard, ~50–100 bp, % pro CpG", icon: "💡", color: "#FAEEDA",
+                        result: "pyro" },
+                      { label: "Bisulfit-Sanger-Sequenzierung", desc: "Klassisch, einfacher aufzusetzen", icon: "🔤", color: "#E6F1FB",
+                        result: "sanger" },
+                    ]
+                  }
+                },
+                { label: "Quantitativ, viele CpGs / Region", desc: "Mehrere Loci oder größere Region abdecken", icon: "🗺️", color: "#E1F5EE",
+                  next: {
+                    id: "multi_cpg",
+                    q: "Wie groß ist die gewünschte Abdeckung?",
+                    hint: "EpiTYPER deckt Regionen per MALDI-TOF ab; Illumina Amplicon Sequencing geht noch breiter.",
+                    opts: [
+                      { label: "Region / Amplikon (~200–600 bp)", desc: "Mehrere CpGs per MALDI-TOF", icon: "⚖️", color: "#FAEEDA",
+                        result: "epityper" },
+                      { label: "Breite Abdeckung / mehrere Amplifikate", desc: "Next-Gen Sequencing, viele Loci parallel", icon: "🧩", color: "#E1F5EE",
+                        result: "amplicon" },
+                    ]
+                  }
+                },
               ]
             }
           },
@@ -275,7 +299,7 @@ const RESULTS = {
     desc: "HpaII schneidet nur unmethylierte CCGG-Sequenzen, MspI ist methylierungsinsensitiv – der Größenvergleich der Fragmente zeigt den Methylierungsstatus. Historisch die erste Methode zur Analyse von DNA-Methylierung (Anfang der 1980er). Günstig, kein Bisulfit nötig, aber nur geringe Auflösung.",
     pros: ["Günstig und einfach", "Kein Bisulfitschritt nötig", "Historisch gut dokumentiert"],
     cons: ["Nur CCGG-Sequenzen", "Keine quantitative Aussage", "Geringe genomische Abdeckung"],
-    tissue: "Frisches oder gefrorenes Gewebe, auch FFPE eingeschränkt möglich",
+    tissue: "Frisches oder gefrorenes Gewebe; FFPE problematisch",
     resolution: "Locus-basiert, keine Einzelbasen-Auflösung",
     throughput: "Niedrig bis mittel",
     tags: [
@@ -288,41 +312,89 @@ const RESULTS = {
     name: "MSP (Methylierungsspezifische PCR)",
     icon: "🔵", color: "#EEEDFE", iconBg: "#534AB7",
     category: "Bisulfit-basierte Methoden",
-    desc: "Nach Bisulfitkonversion werden zwei Primerpaare verwendet: Primer M bindet nur methylierte, Primer U nur unmethylierte Sequenzen. Das Produkt im Gel zeigt qualitativ, ob Methylierung vorliegt. Schnell und sensitiv, aber keine Quantifizierung möglich.",
+    desc: "Nach Bisulfitkonversion werden zwei Primerpaare verwendet: Primer M bindet nur methylierte, Primer U nur unmethylierte Sequenzen. Das Gel-Ergebnis zeigt qualitativ, ob Methylierung vorliegt. Schnell und sensitiv, aber keine Quantifizierung möglich.",
     pros: ["Schnell und kostengünstig", "Sehr sensitiv", "Für viele Loci etabliert"],
     cons: ["Nur qualitativ (ja/nein)", "Primerdesign kritisch", "Bisulfit-Schritt nötig"],
-    tissue: "Frisches, gefrorenes Gewebe, Blut; FFPE eingeschränkt",
-    resolution: "Einzelbasen-Auflösung möglich, aber nur qualitativ",
+    tissue: "Frisches, gefrorenes Gewebe, Blut; FFPE eingeschränkt möglich",
+    resolution: "Locus-spezifisch, qualitativ",
     throughput: "Niedrig bis mittel",
     tags: [
       { label: "qualitativ", cls: "tag-amber" }, { label: "bisulfit", cls: "tag-coral" },
       { label: "PCR-basiert", cls: "tag-blue" }, { label: "kandidatengen", cls: "tag-purple" }
     ],
-    also: ["pyro", "msap"]
+    also: ["pyro", "sanger"]
   },
   pyro: {
     name: "Pyrosequencing",
     icon: "💡", color: "#FAEEDA", iconBg: "#BA7517",
     category: "Bisulfit-basierte Methoden",
-    desc: "Sequenzierung durch Synthese: Pyrophosphat wird bei jeder Basenpaarung freigesetzt, über eine Luciferase-Reaktion in Licht umgewandelt. Nach Bisulfitkonversion gibt das Signal an jedem CpG genau den Methylierungsgrad in Prozent an. Goldstandard für quantitative kandidatengenbasierte Methylierungsanalyse.",
-    pros: ["Präzise Quantifizierung (% Methylierung)", "Gut reproduzierbar", "Bewährt in psychiatrischen Epigenetikstudien"],
+    desc: "Sequenzierung durch Synthese: Pyrophosphat wird bei jeder Basenpaarung freigesetzt und über eine Luciferase-Reaktion in Licht umgewandelt. Nach Bisulfitkonversion gibt das Signal an jedem CpG genau den Methylierungsgrad in Prozent an. Goldstandard für quantitative kandidatengenbasierte Methylierungsanalyse.",
+    pros: ["Präzise Quantifizierung (% pro CpG)", "Gut reproduzierbar", "FFPE-kompatibel (kurze Amplifikate)"],
     cons: ["Bisulfit-Schritt nötig", "Kurze Leselänge (~50–100 bp)", "Primerdesign aufwändig"],
     tissue: "Frisches, gefrorenes Gewebe, Blut, FFPE; liquid biopsy",
     resolution: "Basengenau, quantitativ",
     throughput: "Mittel",
     tags: [
       { label: "quantitativ", cls: "tag-green" }, { label: "bisulfit", cls: "tag-coral" },
-      { label: "Goldstandard", cls: "tag-purple" }, { label: "kandidatengen", cls: "tag-blue" }
+      { label: "Goldstandard", cls: "tag-purple" }, { label: "FFPE-kompatibel", cls: "tag-blue" }
     ],
-    also: ["msp", "medip"]
+    also: ["sanger", "epityper", "msp"]
+  },
+  sanger: {
+    name: "Bisulfit-Sanger-Sequenzierung",
+    icon: "🔤", color: "#E6F1FB", iconBg: "#185FA5",
+    category: "Bisulfit-basierte Methoden",
+    desc: "Nach Bisulfitkonversion wird das Ziel-Amplikon per Sanger-Sequenzierung gelesen. ddNTPs terminieren die Kettenverlängerung, fluoreszenzmarkierte Fragmente werden elektrophoretisch getrennt. Die Peakhöhen im Sequenzierungschromatogramm spiegeln den Methylierungsanteil näherungsweise wider. Einfach aufzusetzen, aber weniger präzise als Pyrosequencing.",
+    pros: ["Einfaches Primerdesign", "Weit verbreitete Infrastruktur", "Größere Leselänge als Pyrosequencing"],
+    cons: ["Weniger präzise Quantifizierung", "Chromatogramm-Auswertung aufwändig", "Bisulfit-Schritt nötig"],
+    tissue: "Frisches, gefrorenes Gewebe, Blut; FFPE eingeschränkt",
+    resolution: "Basengenau, semi-quantitativ",
+    throughput: "Niedrig bis mittel",
+    tags: [
+      { label: "semi-quantitativ", cls: "tag-amber" }, { label: "bisulfit", cls: "tag-coral" },
+      { label: "klassisch", cls: "tag-blue" }, { label: "kandidatengen", cls: "tag-purple" }
+    ],
+    also: ["pyro", "msp"]
+  },
+  epityper: {
+    name: "EpiTYPER (MassARRAY)",
+    icon: "⚖️", color: "#FAEEDA", iconBg: "#854F0B",
+    category: "Bisulfit-basierte Methoden",
+    desc: "Nach Bisulfitkonversion und PCR (mit T7-Tag) wird in vitro transkribiert und das RNA-Produkt enzymatisch geschnitten. Die Fragmentmassen werden per MALDI-TOF-Massenspektrometrie gemessen – methylierte CpGs erzeugen durch G statt A einen +16 Da Massenshift. Ermöglicht quantitative Methylierungsanalyse mehrerer CpGs in einer Region in einem Lauf.",
+    pros: ["Viele CpGs einer Region in einem Lauf", "Quantitativ und reproduzierbar", "Mittlerer Durchsatz"],
+    cons: ["Teure Infrastruktur (MALDI-TOF)", "Bisulfit-Schritt nötig", "Komplexeres Workflow als Pyrosequencing"],
+    tissue: "Frisches, gefrorenes Gewebe, Blut; FFPE möglich",
+    resolution: "CpG-Auflösung, quantitativ",
+    throughput: "Mittel bis hoch",
+    tags: [
+      { label: "quantitativ", cls: "tag-green" }, { label: "bisulfit", cls: "tag-coral" },
+      { label: "MALDI-TOF", cls: "tag-amber" }, { label: "region", cls: "tag-purple" }
+    ],
+    also: ["pyro", "amplicon"]
+  },
+  amplicon: {
+    name: "Illumina Targeted Amplicon Sequencing",
+    icon: "🧩", color: "#E1F5EE", iconBg: "#1D9E75",
+    category: "Bisulfit-basierte Methoden / NGS",
+    desc: "Nach Bisulfitkonversion werden Zielregionen per PCR amplifiziert, mit Illumina-Adaptern versehen und sequenziert. Ermöglicht hochauflösende quantitative Methylierungsanalyse vieler Loci gleichzeitig. Brücke zwischen kandidatengenbasiertem und genomweitem Ansatz.",
+    pros: ["Viele Loci parallel", "Hohe Tiefe und Präzision", "Skalierbar"],
+    cons: ["NGS-Infrastruktur nötig", "Bioinformatik-Auswertung erforderlich", "Teurer als Pyrosequencing"],
+    tissue: "Frisches, gefrorenes Gewebe, Blut; FFPE-optimierte Protokolle verfügbar",
+    resolution: "Basengenau, quantitativ",
+    throughput: "Hoch",
+    tags: [
+      { label: "NGS", cls: "tag-blue" }, { label: "bisulfit", cls: "tag-coral" },
+      { label: "multi-locus", cls: "tag-green" }, { label: "quantitativ", cls: "tag-purple" }
+    ],
+    also: ["pyro", "epityper"]
   },
   medip: {
     name: "MeDIP (Methylated DNA Immunoprecipitation)",
     icon: "🧲", color: "#E6F1FB", iconBg: "#185FA5",
     category: "Affinitätsanreicherung",
-    desc: "Fragmentierte DNA wird mit einem 5mC-spezifischen Antikörper inkubiert und angereichert (präzipitiert). Das angereicherte Material kann mit PCR analysiert werden. Ermöglicht die Untersuchung methylierter Regionen ohne Bisulfitkonversion, aber keine Einzelbasen-Auflösung.",
+    desc: "Fragmentierte DNA wird mit einem 5mC-spezifischen Antikörper inkubiert und angereichert. Das angereicherte Material kann mit PCR analysiert werden. Ermöglicht die Untersuchung methylierter Regionen ohne Bisulfitkonversion, aber keine Einzelbasen-Auflösung.",
     pros: ["Kein Bisulfit nötig", "Sensitiv für dicht methylierte Regionen", "Kombinierbar mit PCR oder Arrays"],
-    cons: ["Keine Einzelbasen-Auflösung", "Antikörperspezifität kritisch", "Ergebnis qualitativ/semi-quantitativ"],
+    cons: ["Keine Einzelbasen-Auflösung", "Antikörperspezifität kritisch", "FFPE problematisch"],
     tissue: "Frisches oder gefrorenes Gewebe empfohlen; größere DNA-Menge nötig",
     resolution: "Regional, keine Einzelbasen-Auflösung",
     throughput: "Mittel",
@@ -354,7 +426,7 @@ const RESULTS = {
     category: "Chromatin-Immunpräzipitation",
     desc: "Chromatin wird fragmentiert, ein Antikörper gegen die gesuchte Histon-Modifikation präzipitiert die zugehörige DNA. Anschließend wird an bestimmten Loci per qPCR quantifiziert. Standard für kandidatengenbasierte Histon-Modifikations-Analysen.",
     pros: ["Spezifisch für einzelne Histon-Modifikationen", "Locus-spezifisch", "Semi-quantitativ bis quantitativ"],
-    cons: ["Proteinquervernetzung und Fragmentierung kritisch", "Antikörperqualität entscheidend", "Aufwändig, viel Ausgangsmaterial"],
+    cons: ["Proteinquervernetzung und Fragmentierung kritisch", "Antikörperqualität entscheidend", "FFPE sehr schwierig"],
     tissue: "Frisches Gewebe oder Zellkultur bevorzugt; FFPE sehr schwierig",
     resolution: "Locus-basiert (Primerdesign)",
     throughput: "Niedrig bis mittel",
@@ -386,7 +458,7 @@ const RESULTS = {
     category: "Regulatorische RNAs",
     desc: "MicroRNAs werden aus Gewebe oder Flüssigbiopsien (Serum, Plasma) isoliert, in cDNA umgeschrieben (mit stem-loop RT-Primer) und mit spezifischen Primerpaaren per quantitativer PCR gemessen. Gut etabliert, sensitiv, auch aus kleinen Mengen biologischen Materials.",
     pros: ["Sensitiv, auch aus Serum/Plasma", "Gut etabliert und standardisiert", "Viele validierte Primersets verfügbar"],
-    cons: ["RT-Step kritisch (stem-loop Primer)", "Normierung schwierig (kein housekeeping miRNA-Standard)", "Kein Rückschluss auf Methylierungsstatus der miRNA-Gene"],
+    cons: ["RT-Step kritisch (stem-loop Primer)", "Normierung schwierig", "Kein Rückschluss auf Methylierungsstatus"],
     tissue: "Flexibel: Gewebe, Blut, Serum, FFPE",
     resolution: "Locus-spezifisch (einzelne miRNAs)",
     throughput: "Mittel bis hoch",
@@ -405,22 +477,12 @@ function render() {
   const main = document.getElementById("main");
   const prog = document.getElementById("progress");
   const bread = document.getElementById("breadcrumb");
-
   const depth = path.length;
-  const maxDepth = 4;
-  prog.style.width = Math.min(100, (depth / maxDepth) * 100) + "%";
-
-  bread.innerHTML = path.map((p, i) => `
-    <span class="breadcrumb-step">
-      <span class="breadcrumb-label">${p.choice}</span>
-    </span>
+  prog.style.width = Math.min(100, (depth / 5) * 100) + "%";
+  bread.innerHTML = path.map(p => `
+    <span class="breadcrumb-step"><span class="breadcrumb-label">${p.choice}</span></span>
   `).join("");
-
-  if (current.result) {
-    showResult(current.result);
-    return;
-  }
-
+  if (current.result) { showResult(current.result); return; }
   main.innerHTML = `
     <div class="card fade-in">
       <div class="question">${current.q}</div>
@@ -444,19 +506,14 @@ function render() {
 function choose(i) {
   const opt = current.opts[i];
   path.push({ choice: opt.label, node: current });
-  if (opt.result) {
-    current = { result: opt.result };
-  } else {
-    current = opt.next;
-  }
+  current = opt.result ? { result: opt.result } : opt.next;
   document.getElementById("main").classList.remove("fade-in");
   render();
 }
 
 function goBack() {
   if (path.length === 0) return;
-  const prev = path.pop();
-  current = prev.node;
+  current = path.pop().node;
   render();
 }
 
@@ -469,13 +526,10 @@ function restart() {
 function showResult(id) {
   const r = RESULTS[id];
   const main = document.getElementById("main");
-
   const tagHtml = (r.tags || []).map(t => `<span class="tag ${t.cls}">${t.label}</span>`).join("");
-
   const alsoHtml = (r.also || []).filter(a => RESULTS[a]).map(a =>
     `<button class="also-chip" onclick="jumpTo('${a}')">${RESULTS[a].name}</button>`
   ).join("");
-
   main.innerHTML = `
     <div class="result-card fade-in">
       <div class="result-header" style="background:${r.color}30;">
